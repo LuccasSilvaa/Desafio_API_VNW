@@ -22,7 +22,7 @@ init_db()
 
 @app.route('/')
 def home_page():
-    return '<h2>Minha pagina com Flask</h2>'
+    return '<h2>"Esta é uma API REST desenvolvida com Flask para gerenciar doações de livros, utilizando um banco de dados SQLite. Ela oferece endpoints para cadastrar novos livros via método POST e listar os livros disponíveis via método GET, garantindo um fluxo eficiente de registro e consulta."</h2>'
 
 
 @app.route('/doar', methods=['POST'])
