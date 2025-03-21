@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import sqlite3
 
 
@@ -22,7 +22,7 @@ init_db()
 
 @app.route('/')
 def home_page():
-    return '<h2>"Esta é uma API REST desenvolvida com Flask para gerenciar doações de livros, utilizando um banco de dados SQLite. Ela oferece endpoints para cadastrar novos livros via método POST e listar os livros disponíveis via método GET, garantindo um fluxo eficiente de registro e consulta."</h2>'
+    return render_template('index.html')
 
 
 @app.route('/doar', methods=['POST'])
@@ -47,23 +47,32 @@ def doar():
 
 @app.route('/livros', methods=['GET'])
 def listar_livros():
-     with sqlite3.connect('database.db') as conn:
-       livros = conn.execute("SELECT * FROM livros").fetchall()
-     livros_formatados = []
-     for livro in livros:
-          dicionario_livros = {
-                "id": livro[0],
-                "titulo": livro[1],
-                "categoria": livro[2],
-                "autor": livro[3],
-                "imagem_url": livro[4]
-            }
-          livros_formatados.append(dicionario_livros)
+    with sqlite3.connect('database.db') as conn:
+        livros = conn.execute("SELECT * FROM livros").fetchall()
+    livros_formatados = []
+    for livro in livros:
+        dicionario_livros = {
+            "id": livro[0],
+            "titulo": livro[1],
+            "categoria": livro[2],
+            "autor": livro[3],
+            "imagem_url": livro[4]
+        }
+        livros_formatados.append(dicionario_livros)
 
-     return jsonify(livros_formatados)     
+    return jsonify(livros_formatados)
 
-    
-         
+
+@app.route('/livros/<int:livro_id>', methods=['DELETE'])
+def deletar_livros(livro_id):
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM livros WHERE id = ?", (livro_id,))
+        conn.commit
+    if cursor.rowcount == 0:
+        return jsonify({"erro": "Livro não encontrado"}), 404
+
+    return jsonify({"mensagem": "Livro deletado"})
 
 
 if __name__ == '__main__':
